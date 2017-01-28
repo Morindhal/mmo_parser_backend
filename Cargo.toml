@@ -1,0 +1,6 @@
+[package]
+name = "mmo_parser_backend"
+version = "0.1.0"
+authors = ["Morindhal <Morindhal@gmail.com>"]
+
+[dependencies]
