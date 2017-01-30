@@ -1,6 +1,17 @@
 
 pub mod EncounterStructures
 {
+    extern crate regex;
+    extern crate chrono;
+    
+    use self::regex::{Regex};
+    use std::cmp::Ordering;
+    use std::fmt;
+    use std::{thread, time};
+    use self::chrono::*;
+    
+    use parserfunctions::ParserFunctions::getTime;
+
     #[derive(Eq, Clone)]
     pub struct Attack
     {
