@@ -7,3 +7,4 @@ authors = ["Morindhal <Morindhal@gmail.com>"]
 regex = "*"
 chrono = "*"
 libc = "*"
+json = "*"

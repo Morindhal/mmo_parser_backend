@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate json;
 
 pub mod datastructures;
 pub mod eventloop;
