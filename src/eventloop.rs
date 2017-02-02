@@ -29,7 +29,7 @@ pub mod EventLoop
     * Spawns a parser for a playername on a selected file.
     * Returns a channel that should be used to recieve the parsed data.
     */
-    pub fn spawn_parser(filename: String, playername: String)
+    pub fn new(filename: String, playername: String)
         -> (Sender<Box<JsonValue>>, Receiver<Box<JsonValue>>)
     {
     
