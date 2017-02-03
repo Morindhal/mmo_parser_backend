@@ -159,7 +159,7 @@ pub mod EventLoop
                 {
                     Ok(json) =>
                     {
-                        println!("{}", (*json).dump());
+                        //println!("{}", (*json).dump());
                         to_ui.send( Box::new( object!{"test" => true} ) );
                     },
                     Err(e) => {}
