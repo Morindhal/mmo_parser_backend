@@ -159,10 +159,30 @@ pub mod EventLoop
                 {
                     Ok(json) =>
                     {
-                        //println!("{}", (*json).dump());
-                        to_ui.send( Box::new( object!{"test" => true} ) );
+                        let mut response = object!{};
+                        if (*json)["EncounterList"] == true
+                        {
+                            let mut tempArr = array![];
+                            for encounter in &encounters
+                            {
+                                tempArr.push(encounter.JSONify());
+                            }
+                            response["EncounterList"].push(tempArr);
+                        }
+                        let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
+                        if encounterspecific < encounters.len() && encounterspecific >= 0
+                        {
+                            let mut tempArr = array![];
+                            for combatant in &encounters[encounterspecific].combatants
+                            {
+                                tempArr.push(combatant.JSONify());
+                            }
+                            response["EncounterSpecific"].push(tempArr);
+                        }
+                        
+                        to_ui.send( Box::new( response ) );
                     },
-                    Err(e) => {}
+                    Err(e) => {}//env_log the error
                 }
             }
         

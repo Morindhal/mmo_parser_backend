@@ -3,6 +3,7 @@ pub mod EncounterStructures
 {
     extern crate regex;
     extern crate chrono;
+    extern crate json;
     
     use self::regex::{Regex};
     use std::cmp::Ordering;
@@ -62,6 +63,20 @@ pub mod EncounterStructures
                 attack_name: String::from("undefined"),
                 crit: String::from("undefined"),
                 damage_type: String::from("undefined")
+            }
+        }
+        
+        pub fn JSONify(&self)
+            -> json::JsonValue
+        {
+            object!{
+                "Attacker" => self.attacker.clone(),
+                "Damage" => self.damage.clone(),
+                "Victim" => self.victim.clone(),
+                "Time" => format!("{}", getTime(self.timestamp.as_str())),
+                "AttackName" => self.attack_name.clone(),
+                "Crit" => self.crit.clone(),
+                "DamageType" => self.damage_type.clone()
             }
         }
     }
@@ -341,6 +356,16 @@ pub mod EncounterStructures
             }
             results
         }
+        
+        pub fn JSONify(&self)
+            -> json::JsonValue
+        {
+            object!{
+                "EndTime" => format!("{}", self.encounter_end),
+                "StartTime" => format!("{}", self.encounter_start),
+                "Name" => "Temporary name"
+            }
+        }
     }
 
     impl fmt::Display for CombatantList
@@ -464,6 +489,19 @@ pub mod EncounterStructures
             if !exists
             {self.attack_stats.push(Attack_Stats::new(&attacks, attackNmbr));}
             self.attack_stats.sort();
+        }
+        
+        pub fn JSONify(&self)
+            -> json::JsonValue
+        {
+            object!{
+                "Name" => self.name.clone(),
+                "HighestHit" => self.highestHit.JSONify(),
+                "HighestHeal" => self.highestHeal.JSONify(),
+                "Healed" => self.final_healed,
+                "Damage" => self.final_damage,
+                "CombatStart" => format!("{}", self.combatstart)
+            }
         }
     }
 }
