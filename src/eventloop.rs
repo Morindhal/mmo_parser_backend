@@ -22,6 +22,7 @@ pub mod EventLoop
     use std::os::raw::c_char;
     
     use json::JsonValue;
+    use json::stringify;
     
     use self::chrono::Local;
 
@@ -170,7 +171,7 @@ pub mod EventLoop
                             {
                                 tempArr.push(encounter.JSONify());
                             }
-                            response["EncounterList"].push(tempArr);
+                            response["EncounterList"] = tempArr;
                         }
                         let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
                         if encounterspecific < encounters.len() && encounterspecific >= 0
@@ -180,10 +181,10 @@ pub mod EventLoop
                             {
                                 tempArr.push(combatant.JSONify());
                             }
-                            response["EncounterSpecific"].push(tempArr);
+                            response["EncounterSpecific"] = tempArr;
                         }
                         
-                        response.push(object!{"JSONTimeStamp" => &*format!("{}", Local::now())});
+                        response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};
                         to_ui.send( Box::new( response ) );
                     },
                     Err(e) => {}//env_log the error
