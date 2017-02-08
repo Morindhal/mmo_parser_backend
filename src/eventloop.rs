@@ -2,6 +2,7 @@ pub mod EventLoop
 {
     extern crate regex;
     extern crate libc;
+    extern crate chrono;
 
     use self::regex::{Regex};
     use std::collections::HashMap;
@@ -21,6 +22,8 @@ pub mod EventLoop
     use std::os::raw::c_char;
     
     use json::JsonValue;
+    
+    use self::chrono::Local;
 
     use datastructures::EncounterStructures::*;
     use parserfunctions::ParserFunctions::getTime;
@@ -180,6 +183,7 @@ pub mod EventLoop
                             response["EncounterSpecific"].push(tempArr);
                         }
                         
+                        response.push(object!{"JSONTimeStamp" => &*format!("{}", Local::now())});
                         to_ui.send( Box::new( response ) );
                     },
                     Err(e) => {}//env_log the error
