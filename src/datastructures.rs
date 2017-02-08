@@ -360,10 +360,12 @@ pub mod EncounterStructures
         pub fn JSONify(&self)
             -> json::JsonValue
         {
+            let duration = (self.encounter_end-self.encounter_start);
             object!{
                 "EndTime" => format!("{}", self.encounter_end),
                 "StartTime" => format!("{}", self.encounter_start),
-                "Name" => "Temporary name"
+                "Name" => "Temporary name",
+                "Duration" => &*format!("{}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 )
             }
         }
     }

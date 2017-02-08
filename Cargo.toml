@@ -5,6 +5,6 @@ authors = ["Morindhal <Morindhal@gmail.com>"]
 
 [dependencies]
 regex = "*"
-chrono = "*"
+chrono = "0.2.25"
 libc = "*"
 json = "*"
