@@ -11,7 +11,7 @@ pub mod EncounterStructures
     use std::{thread, time};
     use self::chrono::*;
     
-    use parserfunctions::ParserFunctions::getTime;
+    use parserfunctions::ParserFunctions::get_time;
 
     #[derive(Eq, Clone)]
     pub struct Attack
@@ -73,7 +73,7 @@ pub mod EncounterStructures
                 "Attacker" => self.attacker.clone(),
                 "Damage" => self.damage.clone(),
                 "Victim" => self.victim.clone(),
-                "Time" => format!("{}", getTime(self.timestamp.as_str())),
+                "Time" => format!("{}", get_time(self.timestamp.as_str())),
                 "AttackName" => self.attack_name.clone(),
                 "Crit" => self.crit.clone(),
                 "DamageType" => self.damage_type.clone()
@@ -276,15 +276,15 @@ pub mod EncounterStructures
         pub fn attack(&mut self, mut attack: Attack)
         {
             if self.attacks.len() == 0
-            {self.encounter_start = getTime(attack.timestamp.as_str());}
-            self.encounter_end = getTime(attack.timestamp.as_str());
+            {self.encounter_start = get_time(attack.timestamp.as_str());}
+            self.encounter_end = get_time(attack.timestamp.as_str());
 
             
             match self.find_combatant(attack.attacker.as_str())
             {
                 -1 =>/*New attacker*/
                     {
-                        self.combatants.push(Combatant{name: attack.attacker.clone(), highestHit: Attack::new(), highestHeal: Attack::new(), final_healed: 0, final_damage: 0, attack_stats: Vec::new(), combatstart: getTime(attack.timestamp.as_str()), sortByDps: true});
+                        self.combatants.push(Combatant{name: attack.attacker.clone(), highestHit: Attack::new(), highestHeal: Attack::new(), final_healed: 0, final_damage: 0, attack_stats: Vec::new(), combatstart: get_time(attack.timestamp.as_str()), sortByDps: true});
                         self.attacks.push(attack);
                         self.combatants.last_mut().unwrap().attack(&self.attacks, self.attacks.len()-1);
                         self.combatants.last_mut().unwrap().final_damage += self.attacks.last().unwrap().damage;

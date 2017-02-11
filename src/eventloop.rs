@@ -27,7 +27,7 @@ pub mod EventLoop
     use self::chrono::Local;
 
     use datastructures::EncounterStructures::*;
-    use parserfunctions::ParserFunctions::getTime;
+    use parserfunctions::ParserFunctions::get_time;
     
     /*
     * Spawns a parser for a playername on a selected file.
@@ -134,7 +134,7 @@ pub mod EventLoop
         {
             let timeout = time::Duration::from_millis(1);
             let mut encounters: Vec<CombatantList> = Vec::new();
-            encounters.push(CombatantList::new(getTime("default_time")));
+            encounters.push(CombatantList::new(get_time("default_time")));
             'communication: loop
             {
                 match from_parser.recv_timeout(timeout)
@@ -143,7 +143,7 @@ pub mod EventLoop
                     {
                         if val.0
                         {
-                            encounters.push(CombatantList::new(getTime("default_time")));
+                            encounters.push(CombatantList::new(get_time("default_time")));
                         }
                         for attack in val.1
                         {

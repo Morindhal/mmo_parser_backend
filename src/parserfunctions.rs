@@ -7,7 +7,7 @@ pub mod ParserFunctions
     use self::chrono::*;
     use self::regex::Regex;
 
-    pub fn getTime(timestamp: &str)
+    pub fn get_time(timestamp: &str)
         -> DateTime<UTC>
     {
         let timeparser = Regex::new(r"(?P<day_week>[A-Za-z]+) (?P<month>[A-Za-z]+)(  | )(?P<day_month>\d+) (?P<hour>\d+):(?P<minute>\d+):(?P<second>\d+) (?P<year>\d+)").unwrap();
