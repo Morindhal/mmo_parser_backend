@@ -1,4 +1,4 @@
-pub mod EventLoop
+pub mod event_loop
 {
     extern crate regex;
     extern crate libc;
@@ -11,23 +11,20 @@ pub mod EventLoop
     use std::{thread, time};
     
 
-    use std::io;
     use std::io::prelude::*;
     use std::fs::File;
     use std::io::BufReader;
     use std::io::SeekFrom;
     
-    use self::libc::system;
     use std::ffi::{CString, CStr};
     use std::os::raw::c_char;
     
     use json::JsonValue;
-    use json::stringify;
     
     use self::chrono::Local;
 
-    use datastructures::EncounterStructures::*;
-    use parserfunctions::ParserFunctions::get_time;
+    use datastructures::encounter_structures::*;
+    use parserfunctions::parser_functions::get_time;
     
     /*
     * Spawns a parser for a playername on a selected file.
@@ -41,7 +38,8 @@ pub mod EventLoop
         let (event_poller_tx, event_poller_rx) = mpsc::channel::<Box<JsonValue>>();
         let (event_responder_tx, event_responder_rx) = mpsc::channel::<Box<JsonValue>>();
         communication((event_responder_tx, event_poller_rx), main_rx);
-        let ui = thread::spawn(move ||
+
+        thread::spawn(move ||
         {
             /*
             * Create a call to another function here that acts as a event-parser, recieves events from all over and stores/responds
@@ -166,22 +164,22 @@ pub mod EventLoop
                         let mut response = object!{};
                         if (*json)["EncounterList"] == true
                         {
-                            let mut tempArr = array![];
+                            let mut temporary_json_array = array![];
                             for encounter in &encounters
                             {
-                                tempArr.push(encounter.JSONify());
+                                temporary_json_array.push(encounter.jsonify());
                             }
-                            response["EncounterList"] = tempArr;
+                            response["EncounterList"] = temporary_json_array;
                         }
                         let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
-                        if encounterspecific < encounters.len() && encounterspecific >= 0
+                        if encounterspecific < encounters.len()
                         {
-                            let mut tempArr = array![];
+                            let mut temporary_json_array = array![];
                             for combatant in &encounters[encounterspecific].combatants
                             {
-                                tempArr.push(combatant.JSONify());
+                                temporary_json_array.push(combatant.jsonify());
                             }
-                            response["EncounterSpecific"] = tempArr;
+                            response["EncounterSpecific"] = temporary_json_array;
                         }
                         
                         response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};

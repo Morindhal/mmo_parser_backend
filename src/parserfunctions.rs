@@ -1,4 +1,4 @@
-pub mod ParserFunctions
+pub mod parser_functions
 {
 
     extern crate chrono;

@@ -1,17 +1,15 @@
 
-pub mod EncounterStructures
+pub mod encounter_structures
 {
     extern crate regex;
     extern crate chrono;
     extern crate json;
     
-    use self::regex::{Regex};
     use std::cmp::Ordering;
     use std::fmt;
-    use std::{thread, time};
     use self::chrono::*;
     
-    use parserfunctions::ParserFunctions::get_time;
+    use parserfunctions::parser_functions::get_time;
 
     #[derive(Eq, Clone)]
     pub struct Attack
@@ -66,7 +64,7 @@ pub mod EncounterStructures
             }
         }
         
-        pub fn JSONify(&self)
+        pub fn jsonify(&self)
             -> json::JsonValue
         {
             object!{
@@ -116,64 +114,64 @@ pub mod EncounterStructures
 
 
     #[derive(Eq)]
-    pub struct Attack_Stats
+    pub struct AttackStats
     {
         name: String,
-        attackNmbr: usize,
-        totalDamage: u64
+        attack_nmbr: usize,
+        total_damage: u64
     }
 
-    impl Attack_Stats
+    impl AttackStats
     {
-        pub fn find_attackname(&mut self, attacks: &Vec<Attack>, attackNmbr: usize)
+        pub fn find_attackname(&mut self, attacks: &Vec<Attack>, attack_nmbr: usize)
             -> bool
         {
-            if self.name == attacks[attackNmbr].attack_name
+            if self.name == attacks[attack_nmbr].attack_name
             {
-                if attacks[self.attackNmbr].damage < attacks[attackNmbr].damage
-                {self.attackNmbr = attackNmbr;}
-                self.totalDamage += attacks[attackNmbr].damage;
+                if attacks[self.attack_nmbr].damage < attacks[attack_nmbr].damage
+                {self.attack_nmbr = attack_nmbr;}
+                self.total_damage += attacks[attack_nmbr].damage;
                 true
             }
             else
             {false}
         }
         
-        pub fn print(&self, duration: u64, allDamage: u64, attacks: &Vec<Attack>)
+        pub fn print(&self, duration: u64, all_damage: u64, attacks: &Vec<Attack>)
             -> String
         {
-            format!("{:6.2} procent of parse   {}\n", (self.totalDamage as f64 / allDamage as f64 * 100.0), (attacks[self.attackNmbr]))
+            format!("{:6.2} procent of parse   {}\n", (self.total_damage as f64 / all_damage as f64 * 100.0), (attacks[self.attack_nmbr]))
         }
 
-        pub fn new(attacks: &Vec<Attack>, attackNmbr: usize)
-            -> Attack_Stats
+        pub fn new(attacks: &Vec<Attack>, attack_nmbr: usize)
+            -> AttackStats
         {
-            Attack_Stats{name: attacks[attackNmbr].attack_name.clone(), attackNmbr: attackNmbr, totalDamage: attacks[attackNmbr].damage}
+            AttackStats{name: attacks[attack_nmbr].attack_name.clone(), attack_nmbr: attack_nmbr, total_damage: attacks[attack_nmbr].damage}
         }
 
     }
 
-    impl Ord for Attack_Stats
+    impl Ord for AttackStats
     {
-        fn cmp(&self, other: &Attack_Stats) -> Ordering
+        fn cmp(&self, other: &AttackStats) -> Ordering
         {
-            other.totalDamage.cmp(&self.totalDamage)
+            other.total_damage.cmp(&self.total_damage)
         }
     }
 
-    impl PartialOrd for Attack_Stats
+    impl PartialOrd for AttackStats
     {
-        fn partial_cmp(&self, other: &Attack_Stats) -> Option<Ordering>
+        fn partial_cmp(&self, other: &AttackStats) -> Option<Ordering>
         {
             Some(self.cmp(other))
         }
     }
 
-    impl PartialEq for Attack_Stats
+    impl PartialEq for AttackStats
     {
-        fn eq(&self, other: &Attack_Stats) -> bool
+        fn eq(&self, other: &AttackStats) -> bool
         {
-            other.totalDamage == self.totalDamage
+            other.total_damage == self.total_damage
         }
     }
 
@@ -263,17 +261,17 @@ pub mod EncounterStructures
     {
         pub combatants: Vec<Combatant>,
         pub attacks: Vec<Attack>,
-        pub attack_stats: Vec<Attack_Stats>,
+        pub attack_stats: Vec<AttackStats>,
         pub encounter_start: DateTime<UTC>,
         pub encounter_end: DateTime<UTC>,
         pub encounter_duration: u64,
-        pub highestHit: Attack,
-        pub highestHeal: Attack
+        pub highest_hit: Attack,
+        pub highest_heal: Attack
     }
 
     impl CombatantList
     {
-        pub fn attack(&mut self, mut attack: Attack)
+        pub fn attack(&mut self, attack: Attack)
         {
             if self.attacks.len() == 0
             {self.encounter_start = get_time(attack.timestamp.as_str());}
@@ -284,7 +282,7 @@ pub mod EncounterStructures
             {
                 -1 =>/*New attacker*/
                     {
-                        self.combatants.push(Combatant{name: attack.attacker.clone(), highestHit: Attack::new(), highestHeal: Attack::new(), final_healed: 0, final_damage: 0, attack_stats: Vec::new(), combatstart: get_time(attack.timestamp.as_str()), sortByDps: true});
+                        self.combatants.push(Combatant{name: attack.attacker.clone(), highest_hit: Attack::new(), highest_heal: Attack::new(), final_healed: 0, final_damage: 0, attack_stats: Vec::new(), combatstart: get_time(attack.timestamp.as_str()), sort_by_dps: true});
                         self.attacks.push(attack);
                         self.combatants.last_mut().unwrap().attack(&self.attacks, self.attacks.len()-1);
                         self.combatants.last_mut().unwrap().final_damage += self.attacks.last().unwrap().damage;
@@ -307,7 +305,7 @@ pub mod EncounterStructures
                     if exists {break;}
                 }
                 if !exists
-                {self.attack_stats.push(Attack_Stats::new(&self.attacks, self.attacks.len()-1));}
+                {self.attack_stats.push(AttackStats::new(&self.attacks, self.attacks.len()-1));}
             }
         }
         
@@ -325,7 +323,7 @@ pub mod EncounterStructures
         pub fn new(start: DateTime<UTC>)
             -> CombatantList
         {
-            CombatantList{combatants: Vec::new(), attacks: Vec::new(), attack_stats: Vec::new(), encounter_start: start, encounter_end: start, encounter_duration: 0, highestHit: Attack::new(), highestHeal: Attack::new()}
+            CombatantList{combatants: Vec::new(), attacks: Vec::new(), attack_stats: Vec::new(), encounter_start: start, encounter_end: start, encounter_duration: 0, highest_hit: Attack::new(), highest_heal: Attack::new()}
         }
         
         pub fn print_attacks(&self, filters: &str, player: &String) -> String
@@ -341,7 +339,7 @@ pub mod EncounterStructures
             results
         }
 
-        pub fn print_attack_stats(&self, player: &str) -> String
+        pub fn print_AttackStats(&self, player: &str) -> String
         {
             let mut results: String = String::from("");
             for combatant in &self.combatants
@@ -357,10 +355,10 @@ pub mod EncounterStructures
             results
         }
         
-        pub fn JSONify(&self)
+        pub fn jsonify(&self)
             -> json::JsonValue
         {
-            let duration = (self.encounter_end-self.encounter_start);
+            let duration = self.encounter_end-self.encounter_start;
             object!{
                 "EndTime" => format!("{}", self.encounter_end),
                 "StartTime" => format!("{}", self.encounter_start),
@@ -374,7 +372,7 @@ pub mod EncounterStructures
     {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
         {
-            let duration = (self.encounter_end-self.encounter_start);
+            let duration = self.encounter_end-self.encounter_start;
             write!(f, "Encounter duration: {}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 );
             for i in 0..((self.combatants).len())
             {
@@ -388,7 +386,7 @@ pub mod EncounterStructures
     {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
         {
-            let duration = (self.encounter_end-self.encounter_start);
+            let duration = self.encounter_end-self.encounter_start;
             write!(f, "Encounter duration: {}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 );
             for i in 0..((self.combatants).len())
             {
@@ -402,20 +400,20 @@ pub mod EncounterStructures
     pub struct Combatant
     {
         pub name: String,
-        pub highestHit: Attack,
-        pub highestHeal: Attack,
+        pub highest_hit: Attack,
+        pub highest_heal: Attack,
         pub final_healed: u64,
         pub final_damage: u64,
-        pub attack_stats: Vec<Attack_Stats>,
+        pub attack_stats: Vec<AttackStats>,
         pub combatstart: DateTime<UTC>,
-        pub sortByDps: bool
+        pub sort_by_dps: bool
     }
 
     impl Ord for Combatant
     {
         fn cmp(&self, other: &Combatant) -> Ordering
         {
-            if self.sortByDps
+            if self.sort_by_dps
             {
                 other.final_damage.cmp(&self.final_damage)
             }
@@ -438,7 +436,7 @@ pub mod EncounterStructures
     {
         fn eq(&self, other: &Combatant) -> bool
         {
-            if self.sortByDps
+            if self.sort_by_dps
             {
                 other.final_damage == self.final_damage
             }
@@ -470,36 +468,36 @@ pub mod EncounterStructures
             format!("{name}: {dps:.3}m ", name=self.name, dps=dps)
         }
 
-    /*    pub fn print_attack_stats(&self, encounter_duration : u64) -> String
+    /*    pub fn print_AttackStats(&self, encounter_duration : u64) -> String
         {
             let mut results: String = String::from("");
-            for stats in &self.attack_stats
+            for stats in &self.AttackStats
             {
                 results.push_str(&format!("{}", stats.print(encounter_duration));
             }
             results
         }*/
         
-        pub fn attack(&mut self, mut attacks: &Vec<Attack>, attackNmbr: usize)
+        pub fn attack(&mut self, attacks: &Vec<Attack>, attack_nmbr: usize)
         {
             let mut exists = false;
             for stats in self.attack_stats.iter_mut()
             {
-                exists = stats.find_attackname(&attacks, attackNmbr);
+                exists = stats.find_attackname(&attacks, attack_nmbr);
                 if exists {break;}
             }
             if !exists
-            {self.attack_stats.push(Attack_Stats::new(&attacks, attackNmbr));}
+            {self.attack_stats.push(AttackStats::new(&attacks, attack_nmbr));}
             self.attack_stats.sort();
         }
         
-        pub fn JSONify(&self)
+        pub fn jsonify(&self)
             -> json::JsonValue
         {
             object!{
                 "Name" => self.name.clone(),
-                "HighestHit" => self.highestHit.JSONify(),
-                "HighestHeal" => self.highestHeal.JSONify(),
+                "highest_hit" => self.highest_hit.jsonify(),
+                "highest_heal" => self.highest_heal.jsonify(),
                 "Healed" => self.final_healed,
                 "Damage" => self.final_damage,
                 "CombatStart" => format!("{}", self.combatstart)
