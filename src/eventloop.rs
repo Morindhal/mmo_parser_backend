@@ -190,6 +190,20 @@ pub mod event_loop
                             }
                             response["EncounterSpecific"] = temporary_json_array;
                         }
+                        let combatant_specific:usize = (*json)["CombatantSpecific"].as_usize().unwrap_or_default();
+                        if combatant_specific < encounters.len()
+                        {
+                            let mut temporary_json_array = array![];
+                            for attack_stat in &encounters[encounterspecific].combatants[combatant_specific].attack_stats
+                            {
+                                match temporary_json_array.push(attack_stat.jsonify())
+                                {
+                                    Ok(_) => {},
+                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                };
+                            }
+                            response["EncounterSpecific"] = temporary_json_array;
+                        }
                         
                         response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};
                         match to_ui.send( Box::new( response ) ) {Ok(_) => {}, Err(e) => warn!("Could not send the JSON response to the frontend: {}", e)};

@@ -149,6 +149,15 @@ pub mod encounter_structures
             AttackStats{name: attacks[attack_nmbr].attack_name.clone(), attack_nmbr: attack_nmbr, total_damage: attacks[attack_nmbr].damage}
         }
 
+        pub fn jsonify(&self)
+            -> json::JsonValue
+        {
+            object!{
+                "Name" => format!("{}", self.name),
+                "HighestHit" => self.attack_nmbr,
+                "TotalDamage" => self.total_damage
+            }
+        }
     }
 
     impl Ord for AttackStats
