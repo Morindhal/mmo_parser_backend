@@ -177,7 +177,7 @@ pub mod event_loop
                             response["EncounterList"] = temporary_json_array;
                         }
                         let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
-                        if encounterspecific < encounters.len()
+                        if !encounters.empty() && encounterspecific < encounters.len()
                         {
                             let mut temporary_json_array = array![];
                             for combatant in &encounters[encounterspecific].combatants
