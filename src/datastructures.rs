@@ -217,43 +217,11 @@ pub mod encounter_structures
             //self.attacks.push(Attack{damage: attack_data.name("damage").unwrap().parse::<u64>().unwrap(), victim: String::from(attack_data.name("target").unwrap()), timestamp: String::from(attack_data.name("datetime").unwrap()), attack_name: String::from(match attack_data.name("attack").unwrap() { "" => "auto attack", val => val } ), crit: String::from(attack_data.name("crittype").unwrap()), damage_type: String::from(attack_data.name("damagetype").unwrap())});
             self.final_damage += attack_data.name("damage").unwrap().as_str().parse::<u64>().unwrap();
         }
-        
-        /*This should probably be replaced by a impl fmt::Display*/
-        pub fn print(&self, encounter_duration : u64) -> String
-        {
-            let dps = match encounter_duration{0=>0.0, _=>((self.final_damage / (encounter_duration)) as f64)/1000000.0  };
-            /*Leave this commented until heals are parsed*/
-            //let hps = match encounter_duration{0=>0.0, _=>((self.final_healed / (encounter_duration)) as f64)/1000.0  };
-            //format!("{name:.*}: {dps:.1}m | {hps}k", 4, name=self.name, dps=dps, hps=hps)
-            format!("{name:.*}: {dps:.1}m ", 4, name=self.name, dps=dps)
-        }
-
-        /*This should probably be replaced by a impl fmt::Debug*/
-        pub fn print_full(&self, encounter_duration : u64) -> String
-        {
-            let dps = match encounter_duration{0=>0.0, _=>((self.final_damage / (encounter_duration)) as f64)/1000000.0  };
-            /*Leave this commented until heals are parsed*/
-            //let hps = match encounter_duration{0=>0.0, _=>((self.final_healed / (encounter_duration)) as f64)/1000.0  };
-            //format!("{name:.*}: {dps:.1}m | {hps}k", 4, name=self.name, dps=dps, hps=hps)
-            format!("{name}: {dps:.3}m ", name=self.name, dps=dps)
-        }
     }
 
     impl Clone for Attacker
     {
         fn clone(&self) -> Attacker{ Attacker{attacks: self.attacks.clone(), final_damage: self.final_damage, final_healed: self.final_healed, name: self.name.clone()} }
-    }
-
-    impl fmt::Display for Attacker
-    {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-        {
-            for i in 0..((self.attacks).len())
-            {
-                write!(f, "{}\n", ((self.attacks))[i]);
-            }
-            write!(f, "")
-        }
     }
 
 
@@ -339,7 +307,7 @@ pub mod encounter_structures
             results
         }
 
-        pub fn print_AttackStats(&self, player: &str) -> String
+        pub fn print_attack_stats(&self, player: &str) -> String
         {
             let mut results: String = String::from("");
             for combatant in &self.combatants
@@ -365,34 +333,6 @@ pub mod encounter_structures
                 "Name" => "Temporary name",
                 "Duration" => &*format!("{}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 )
             }
-        }
-    }
-
-    impl fmt::Display for CombatantList
-    {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-        {
-            let duration = self.encounter_end-self.encounter_start;
-            write!(f, "Encounter duration: {}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 );
-            for i in 0..((self.combatants).len())
-            {
-                write!(f, "{}\n", ((self.combatants))[i].print( duration.num_seconds() as u64 ));
-            }
-            write!(f, "")
-        }
-    }
-
-    impl fmt::Debug for CombatantList
-    {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-        {
-            let duration = self.encounter_end-self.encounter_start;
-            write!(f, "Encounter duration: {}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 );
-            for i in 0..((self.combatants).len())
-            {
-                write!(f, "{}\n", ((self.combatants))[i].print_full( duration.num_seconds() as u64 ));
-            }
-            write!(f, "")
         }
     }
 
@@ -449,35 +389,6 @@ pub mod encounter_structures
 
     impl Combatant
     {
-        pub fn print(&self, encounter_duration : u64) -> String
-        {
-            let dps = match encounter_duration{0=>0.0, _=>((self.final_damage / (encounter_duration)) as f64)/1000000.0  };
-            /*Leave this commented until heals are parsed*/
-            //let hps = match encounter_duration{0=>0.0, _=>((self.final_healed / (encounter_duration)) as f64)/1000.0  };
-            //format!("{name:.*}: {dps:.1}m | {hps}k", 4, name=self.name, dps=dps, hps=hps)
-            format!("{name:.*}: {dps:.1}m ", 4, name=self.name, dps=dps)
-        }
-
-        /*This should probably be replaced by a impl fmt::Debug*/
-        pub fn print_full(&self, encounter_duration : u64) -> String
-        {
-            let dps = match encounter_duration{0=>0.0, _=>((self.final_damage / (encounter_duration)) as f64)/1000000.0  };
-            /*Leave this commented until heals are parsed*/
-            //let hps = match encounter_duration{0=>0.0, _=>((self.final_healed / (encounter_duration)) as f64)/1000.0  };
-            //format!("{name:.*}: {dps:.1}m | {hps}k", 4, name=self.name, dps=dps, hps=hps)
-            format!("{name}: {dps:.3}m ", name=self.name, dps=dps)
-        }
-
-    /*    pub fn print_AttackStats(&self, encounter_duration : u64) -> String
-        {
-            let mut results: String = String::from("");
-            for stats in &self.AttackStats
-            {
-                results.push_str(&format!("{}", stats.print(encounter_duration));
-            }
-            results
-        }*/
-        
         pub fn attack(&mut self, attacks: &Vec<Attack>, attack_nmbr: usize)
         {
             let mut exists = false;

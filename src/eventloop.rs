@@ -6,7 +6,7 @@ pub mod event_loop
 
     use self::regex::{Regex};
     use std::collections::HashMap;
-    use std::sync::mpsc::{self, RecvTimeoutError, Receiver, Sender};
+    use std::sync::mpsc::{self, Receiver, Sender};
 
     use std::{thread, time};
     
@@ -57,11 +57,11 @@ pub mod event_loop
             let mut fightdone = true;
             
             let player = playername.as_str();
-            let f = File::open(filename).unwrap();
+            let f = match File::open(filename.clone()) {Ok(f) => f, Err(e) => panic!("ERROR opening file \"{}\" : {}", filename, e)};
             let mut file = BufReader::new(&f);
             
             /*jump to the end of the file, negative value here will go to the nth character before the end of file.. Positive values are not encouraged.*/
-            file.seek(SeekFrom::End(0));
+            match file.seek(SeekFrom::End(0)) {Ok(f) => f, Err(e) => panic!("Could not move to the end of the file ({}): {}", filename, e)};
         
             let re = Regex::new(r"\((?P<time>\d+)\)\[(?P<datetime>(\D|\d)+)\] (?P<attacker>\D*?)(' |'s |YOUR |YOU )(?P<attack>\D*)(((multi attack)|hits|hit|flurry|(aoe attack)|flurries|(multi attacks)|(aoe attacks))|(( multi attacks)| hits| hit)) (?P<target>\D+) for(?P<crittype>\D*)( of | )(?P<damage>\d+) (?P<damagetype>[A-Za-z]+) damage").unwrap();
             
@@ -84,7 +84,7 @@ pub mod event_loop
                                 triggers.insert("Madness!", Regex::new(r".*Madness heals.*").unwrap());
                             for (trigger, trigged) in triggers.iter()
                             {
-                                match trigged.captures(triggerbuffer.as_str()) {None => {}, Some(cap) =>
+                                match trigged.captures(triggerbuffer.as_str()) {None => {}, Some(_) =>
                                 {
                                     speak(&CString::new(format!("espeak \"{}\"", trigger)).unwrap());
                                 }};
@@ -116,7 +116,8 @@ pub mod event_loop
                         {
                             attacks.clear();
                             fightdone = true;
-                            parse_tx.send(Box::new((fightdone, attacks.drain(0..).collect())));
+                            match parse_tx.send(Box::new((fightdone, attacks.drain(0..).collect())))
+                                {Ok(_) => {}, Err(e) => warn!("Could not send the parsed attacks to the communication thread: {}", e)};
                             break 'encounter_loop;
                         }
                     }
@@ -150,7 +151,7 @@ pub mod event_loop
                         if encounters.len() != 0
                         {encounters.last_mut().unwrap().encounter_duration = (encounters.last().unwrap().encounter_end-encounters.last().unwrap().encounter_start).num_seconds() as u64;}
                     },
-                    Err(e) => {}
+                    Err(e) => {warn!("Channel error(from_parser): {}", e);}
                 }
                 /*
                 * from_ui asks for what type of data it wants by sending a json object with the request
@@ -167,7 +168,11 @@ pub mod event_loop
                             let mut temporary_json_array = array![];
                             for encounter in &encounters
                             {
-                                temporary_json_array.push(encounter.jsonify());
+                                match temporary_json_array.push(encounter.jsonify())
+                                {
+                                    Ok(_) => {},
+                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                };
                             }
                             response["EncounterList"] = temporary_json_array;
                         }
@@ -177,15 +182,19 @@ pub mod event_loop
                             let mut temporary_json_array = array![];
                             for combatant in &encounters[encounterspecific].combatants
                             {
-                                temporary_json_array.push(combatant.jsonify());
+                                match temporary_json_array.push(combatant.jsonify())
+                                {
+                                    Ok(_) => {},
+                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                };
                             }
                             response["EncounterSpecific"] = temporary_json_array;
                         }
                         
                         response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};
-                        to_ui.send( Box::new( response ) );
+                        match to_ui.send( Box::new( response ) ) {Ok(_) => {}, Err(e) => warn!("Could not send the JSON response to the frontend: {}", e)};
                     },
-                    Err(e) => {}//env_log the error
+                    Err(e) => {warn!("Channel error(from_ui): {}", e);}
                 }
             }
         
