@@ -196,7 +196,7 @@ pub mod event_loop
                             let mut temporary_json_array = array![];
                             for attack_stat in &encounters[encounterspecific].combatants[combatant_specific].attack_stats
                             {
-                                match temporary_json_array.push(attack_stat.jsonify())
+                                match temporary_json_array.push(attack_stat.jsonify(& encounters[encounterspecific].attacks))
                                 {
                                     Ok(_) => {},
                                     Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
