@@ -116,8 +116,8 @@ pub mod event_loop
                         {
                             attacks.clear();
                             fightdone = true;
-                            match parse_tx.send(Box::new((fightdone, attacks.drain(0..).collect())))
-                                {Ok(_) => {}, Err(e) => warn!("Could not send the parsed attacks to the communication thread: {}", e)};
+                            parse_tx.send(Box::new((fightdone, attacks.drain(0..).collect()))).unwrap();
+                                //{Ok(_) => {}, Err(e) => warn!("Could not send the parsed attacks to the communication thread: {}", e)};
                             break 'encounter_loop;
                         }
                     }
@@ -162,56 +162,59 @@ pub mod event_loop
                 {
                     Ok(json) =>
                     {
-                        let mut response = object!{};
-                        if (*json)["EncounterList"] == true
+                    
+                        if !encounters.is_empty()
                         {
-                            let mut temporary_json_array = array![];
-                            for encounter in &encounters
+                            let mut response = object!{"Greeting" => "Friendly"};
+                            if !encounters.is_empty() && (*json)["EncounterList"].is_null() != true
                             {
-                                match temporary_json_array.push(encounter.jsonify())
+                                let mut temporary_json_array = array![];
+                                for encounter in &encounters
                                 {
-                                    Ok(_) => {},
-                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
-                                };
+                                    match temporary_json_array.push(encounter.jsonify())
+                                    {
+                                        Ok(_) => {},
+                                        Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                    };
+                                }
+                                response["EncounterList"] = temporary_json_array;
                             }
-                            response["EncounterList"] = temporary_json_array;
-                        }
-                        let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
-                        if !encounters.empty() && encounterspecific < encounters.len()
-                        {
-                            let mut temporary_json_array = array![];
-                            for combatant in &encounters[encounterspecific].combatants
+                            let encounterspecific:usize = (*json)["EncounterSpecific"].as_usize().unwrap_or_default();
+                            if encounterspecific < encounters.len()
                             {
-                                match temporary_json_array.push(combatant.jsonify())
+                                let mut temporary_json_array = array![];
+                                for combatant in &encounters[encounterspecific].combatants
                                 {
-                                    Ok(_) => {},
-                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
-                                };
-                            }
-                            response["EncounterSpecific"] = temporary_json_array;
-                        }
-                        let combatant_specific:usize = (*json)["CombatantSpecific"].as_usize().unwrap_or_default();
-                        if combatant_specific < encounters.len()
-                        {
-                            let mut temporary_json_array = array![];
-                            for attack_stat in &encounters[encounterspecific].combatants[combatant_specific].attack_stats
+                                    match temporary_json_array.push(combatant.jsonify())
+                                    {
+                                        Ok(_) => {},
+                                        Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                    };
+                                }
+                                response["EncounterSpecific"] = temporary_json_array;
+                            }/*
+                            let combatant_specific:usize = (*json)["CombatantSpecific"].as_usize().unwrap_or_default();
+                            if combatant_specific < encounters.len()
                             {
-                                match temporary_json_array.push(attack_stat.jsonify(& encounters[encounterspecific].attacks))
+                                let mut temporary_json_array = array![];
+                                for attack_stat in &encounters[encounterspecific].combatants[combatant_specific].attack_stats
                                 {
-                                    Ok(_) => {},
-                                    Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
-                                };
+                                    match temporary_json_array.push(attack_stat.jsonify(& encounters[encounterspecific].attacks))
+                                    {
+                                        Ok(_) => {},
+                                        Err(e) => warn!("Could not correctly create the JSONarray: {}", e)
+                                    };
+                                }
+                                response["EncounterSpecific"] = temporary_json_array;
                             }
-                            response["EncounterSpecific"] = temporary_json_array;
+                            */
+                            response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};
+                            match to_ui.send( Box::new( response ) ) {Ok(_) => {}, Err(e) => warn!("Could not send the JSON response to the frontend: {}", e)};
                         }
-                        
-                        response["JSONTimeStamp"] = object!{"JSONTimeStamp" => &*format!("{}", Local::now())};
-                        match to_ui.send( Box::new( response ) ) {Ok(_) => {}, Err(e) => warn!("Could not send the JSON response to the frontend: {}", e)};
                     },
                     Err(e) => {warn!("Channel error(from_ui): {}", e);}
                 }
             }
-        
         });
     }
     

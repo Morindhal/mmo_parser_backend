@@ -340,7 +340,7 @@ pub mod encounter_structures
                 "EndTime" => format!("{}", self.encounter_end),
                 "StartTime" => format!("{}", self.encounter_start),
                 "Name" => "Temporary name",
-                "Duration" => &*format!("{}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 )
+                "Duration" => duration.num_seconds()//&*format!("{}:{:02}\n", duration.num_minutes(), duration.num_seconds() % 60 )
             }
         }
     }
