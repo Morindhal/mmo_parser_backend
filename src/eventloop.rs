@@ -82,6 +82,7 @@ pub mod event_loop
                                 triggers.insert("Ruling I am", Regex::new(r".*I rule.*").unwrap());
                                 triggers.insert("Verily", Regex::new(r".*i also rule.*").unwrap());
                                 triggers.insert("Madness!", Regex::new(r".*Madness heals.*").unwrap());
+                                triggers.insert("Madness!", Regex::new(r".*connected to the Celestial Gate.*").unwrap());
                             for (trigger, trigged) in triggers.iter()
                             {
                                 match trigged.captures(triggerbuffer.as_str()) {None => {}, Some(_) =>
