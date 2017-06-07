@@ -184,6 +184,7 @@ pub mod event_loop
                             if encounterspecific < encounters.len()
                             {
                                 let mut temporary_json_array = array![];
+                                encounters[encounterspecific].combatants.sort();
                                 for combatant in &encounters[encounterspecific].combatants
                                 {
                                     match temporary_json_array.push(combatant.jsonify())
