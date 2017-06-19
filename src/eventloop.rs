@@ -83,7 +83,7 @@ pub mod event_loop
                                 triggers.insert("Verily", Regex::new(r".*i also rule.*").unwrap());
                                 triggers.insert("Madness!", Regex::new(r".*Madness heals.*").unwrap());
                                 triggers.insert("Gate!", Regex::new(r".*You are connected to the Celestial Gate.*").unwrap());
-                                triggers.insert("Gate!", Regex::new(r".*The air around you crackles with planar magic.*").unwrap());
+                                triggers.insert("STOP!", Regex::new(r".*The air around you crackles with planar magic.*").unwrap());
                             for (trigger, trigged) in triggers.iter()
                             {
                                 match trigged.captures(triggerbuffer.as_str()) {None => {}, Some(_) =>
